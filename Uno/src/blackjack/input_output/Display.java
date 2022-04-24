@@ -1,18 +1,27 @@
 package blackjack.input_output;
 
 import blackjack.Cards.Card;
+import blackjack.Cards.Colour;
 import blackjack.Player;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /** Class which handles the text that should be output.
  *
  */
 public class Display {
     private Output output;
-    private List<TextColour> playerColours = Arrays.asList(TextColour.boldRed, TextColour.boldYellow,
-            TextColour.boldGreen, TextColour.boldBlue);
+    final private List<TextColour> playerColours = Arrays.asList(TextColour.boldCyan, TextColour.boldPurple,
+            TextColour.boldWhite, TextColour.boldBlack);
+    final private Map<Colour, String> cardColourToColourString = Map.ofEntries(
+            Map.entry(Colour.red, "\033[0;31m"),
+            Map.entry(Colour.green, "\033[0;32m"),
+            Map.entry(Colour.yellow, "\033[0;33m"),
+            Map.entry(Colour.blue, "\033[0;34m")
+    );
+    private final String colourResetString = "\u001B[0m";
 
     public Display(Output output) {
         this.output = output;
@@ -27,7 +36,7 @@ public class Display {
     }
 
     public void drewCard(Player player, Card drawnCard, boolean shouldOutputWhichCardDrawn) {
-        String cardName = shouldOutputWhichCardDrawn ? drawnCard.toString() : "card";
+        String cardName = shouldOutputWhichCardDrawn ? getCardStringWithColour(drawnCard) : "card";
         output.displayString(player.getName() + " drew a " + cardName);
     }
 
@@ -35,7 +44,7 @@ public class Display {
         int cardCounter = 1;
 
         for(Card card : cards) {
-            output.displayString(cardCounter + ") " + card);
+            output.displayString(cardCounter + ") " + getCardStringWithColour(card));
             cardCounter++;
         }
 
@@ -46,7 +55,9 @@ public class Display {
         outputStringBuilder.append("Hand: ");
 
         for(int i=0; i < hand.size(); i++) {
-            outputStringBuilder.append(hand.get(i));
+            outputStringBuilder.append(
+                    getCardStringWithColour(hand.get(i))
+            );
 
             if(i != hand.size()-1) {
                 outputStringBuilder.append(", ");
@@ -57,12 +68,12 @@ public class Display {
     }
 
     public void faceUpCard(Card faceUpCard) {
-        String outputString = "Face up card: " + faceUpCard;
+        String outputString = "Face up card: " + getCardStringWithColour(faceUpCard);
         output.displayString(outputString);
     }
 
     public void playedCard(Card playedCard) {
-        output.displayString("Played: " + playedCard);
+        output.displayString("Played: " + getCardStringWithColour(playedCard));
     }
 
     public void plusCard(Player playerWhoHasToDrawCards, int numCards) {
@@ -105,4 +116,8 @@ public class Display {
         output.displayString("Select a colour to change the top card to:");
     }
 
+    public String getCardStringWithColour(Card card) {
+        String colourString = cardColourToColourString.get(card.getColour());
+        return colourString + card + colourResetString;
+    }
 }
