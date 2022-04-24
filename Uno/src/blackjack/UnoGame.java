@@ -41,7 +41,6 @@ public class UnoGame {
     public void initialisePlayers(int humanPlayerCount, int cpuPlayerCount) {
         players = new ArrayList<>();
 
-        // ADD PLAYERS TO LIST
         for(int i=0; i<humanPlayerCount; i++) {
             players.add(new HumanPlayer(getUserToChooseName()));
         }
@@ -78,28 +77,32 @@ public class UnoGame {
             return;
         }
 
-        List<Card> cardsWhichCanBePlayed = getCardsWhichCanBePlayed(player, gameDeck.getTopCard());
-
         display.faceUpCard(gameDeck.getTopCard());
+        // Show hand if player is a human player
         if(player instanceof HumanPlayer) {
             display.showHand(player.getHand());
         }
 
+        List<Card> cardsWhichCanBePlayed = getCardsWhichCanBePlayed(player, gameDeck.getTopCard());
         if(cardsWhichCanBePlayed.size() > 0) {
-            if(player instanceof HumanPlayer) {
-                display.showCardsWhichCanBePlayed(cardsWhichCanBePlayed);
-                display.chooseCard();
-            }
-
-            Card cardToPlay = player.chooseCardToPlay(cardsWhichCanBePlayed, userInput);
-            player.removeCardFromHand(cardToPlay);
-            handleCardPlayed(cardToPlay);
+            handleCardsCanBePlayed(player, cardsWhichCanBePlayed);
         }
         else {
             handleNoCardsCanBePlayed(player);
         }
 
         currentPlayerIndex = getNextPlayerIndex();
+    }
+
+    public void handleCardsCanBePlayed(Player player, List<Card> cardsWhichCanBePlayed) {
+        if(player instanceof HumanPlayer) {
+            display.showCardsWhichCanBePlayed(cardsWhichCanBePlayed);
+            display.chooseCard();
+        }
+
+        Card cardToPlay = player.chooseCardToPlay(cardsWhichCanBePlayed, userInput);
+        player.removeCardFromHand(cardToPlay);
+        handleCardPlayed(cardToPlay);
     }
 
     public void handleNoCardsCanBePlayed(Player player) {
