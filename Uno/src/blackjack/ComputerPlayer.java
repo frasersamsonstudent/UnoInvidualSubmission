@@ -54,7 +54,7 @@ public class ComputerPlayer implements Player {
 
     @Override
     public int chooseColour(Input input) {
-        return getRandomNumberInRange(1, 4);
+        return getRandomNumberInRange(0, 3);
     }
 
     private int getRandomNumberInRange(int min, int max) {
