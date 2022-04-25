@@ -15,7 +15,7 @@ public class ReadDelimitedFile {
         this.fileDelimitor = fileDelimitor;
     }
 
-    public List<String[]> getFileData(String fileName){
+    public List<String[]> getFileData(String fileName) throws IOException {
         List<String[]> fileData = new ArrayList<>();
         try {
             File propertyFile = new File(filePathPrefix+ fileName);
@@ -27,7 +27,7 @@ public class ReadDelimitedFile {
             propertyReader.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
-            e.printStackTrace();
+            throw new IOException("Couldn't read file");
         }
         return fileData;
     }

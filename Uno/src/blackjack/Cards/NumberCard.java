@@ -1,9 +1,11 @@
 package blackjack.Cards;
 
 
+import java.util.Objects;
+
 public class NumberCard implements Card {
-    private Colour colour;
-    private int value;
+    public Colour colour;
+    public int value;
 
     public NumberCard(Colour colour, int value) {
         this.colour = colour;
@@ -38,5 +40,18 @@ public class NumberCard implements Card {
     @Override
     public String toString() {
         return colour + " " + value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NumberCard that = (NumberCard) o;
+        return value == that.value && colour == that.colour;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(colour, value);
     }
 }

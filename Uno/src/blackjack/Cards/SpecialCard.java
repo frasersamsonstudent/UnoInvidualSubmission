@@ -1,5 +1,7 @@
 package blackjack.Cards;
 
+import java.util.Objects;
+
 public class SpecialCard implements Card {
     SpecialCardType cardType;
     Colour colour;
@@ -41,5 +43,18 @@ public class SpecialCard implements Card {
     @Override
     public String toString() {
         return colour + " " + cardType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpecialCard that = (SpecialCard) o;
+        return cardType == that.cardType && colour == that.colour;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cardType, colour);
     }
 }

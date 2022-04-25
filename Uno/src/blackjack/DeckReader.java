@@ -12,7 +12,4 @@ public class DeckReader {
         this.readDelimitedFile = readDelimitedFile;
     }
 
-    public void getDeckFromFile() {
-        readDelimitedFile.getFileData(fileName);
-    }
 }

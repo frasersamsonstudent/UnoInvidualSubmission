@@ -26,6 +26,11 @@ public class HumanPlayer implements Player {
     }
 
     @Override
+    public void setHand(List<Card> hand) {
+        this.hand = hand;
+    }
+
+    @Override
     public Card chooseCardToPlay(List<Card> cardsWhichCanBePlayedInHand, Input input) {
         int userChoice = input.getInputInRange(1, cardsWhichCanBePlayedInHand.size());
         return cardsWhichCanBePlayedInHand.get(userChoice - 1);
@@ -51,4 +56,5 @@ public class HumanPlayer implements Player {
         int userChoice = input.getInputInRange(1, 4);
         return userChoice-1;
     }
+
 }

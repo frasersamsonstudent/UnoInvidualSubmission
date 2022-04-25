@@ -1,13 +1,14 @@
 package blackjack;
 
-import blackjack.Cards.Card;
-import blackjack.Cards.SpecialCard;
-import blackjack.Cards.Colour;
+import blackjack.Cards.*;
 import blackjack.input_output.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 public class UnoGame {
     Deck gameDeck = new Deck();
@@ -15,7 +16,9 @@ public class UnoGame {
     Output output;
     Input userInput;
     Display display;
+    ReadDelimitedFile readDelimitedFile = new ReadDelimitedFile();
     int currentPlayerIndex;
+
 
     public static void main(String[] args) {
         UnoGame game = new UnoGame();
@@ -25,17 +28,18 @@ public class UnoGame {
     public UnoGame() {
         output = new ConsoleOutput();
         userInput = new ConsoleInput();
-        display = new Display(output);
+        display = new DisplayOutput(output);
 
         int[] numPlayers = userChooseNumberPlayers();
         initialisePlayers(numPlayers[0], numPlayers[1]);
     }
 
-    public UnoGame(List<Player> players, Output output, Input input) {
+    public UnoGame(List<Player> players, Output output, Input input, Display display, ReadDelimitedFile readDelimitedFile) {
         this.players = players;
         this.output = output;
         this.userInput = input;
-        this.display = new Display(output);
+        this.display = display;
+        this.readDelimitedFile = readDelimitedFile;
     }
 
     public void initialisePlayers(int humanPlayerCount, int cpuPlayerCount) {
@@ -55,10 +59,22 @@ public class UnoGame {
             int[] numPlayers = userChooseNumberPlayers();
             initialisePlayers(numPlayers[0], numPlayers[1]);
         }
-        if(shouldShuffleAndDeal) {
+
+        boolean isLoadExistingGame = chooseLoadExistingGame();
+        if(isLoadExistingGame) {
+            handleLoadingExistingGame();
+        }
+        else if(shouldShuffleAndDeal) {
             gameDeck.shuffleDeck();
             gameDeck.dealCardsToPlayers(players, 7);
         }
+
+        gameLoop();
+        handleGameOver();
+    }
+
+    public void gameLoop() {
+        output.newLine();
 
         // Main game loop
         while(!isGameOver()) {
@@ -68,8 +84,14 @@ public class UnoGame {
             playTurn(turnPlayer);
             output.newLine();
         }
+    }
 
-        handleGameOver();
+    public boolean chooseLoadExistingGame() {
+        display.chooseLoadExistingGame();
+        List<String> options = Arrays.asList("Start new game", "Load existing game");
+        display.displayListOfOptions(options);
+
+        return userInput.getInputInRange(1, 2) == 2;
     }
 
     public void playTurn(Player player) {
@@ -91,7 +113,7 @@ public class UnoGame {
             handleNoCardsCanBePlayed(player);
         }
 
-        currentPlayerIndex = getNextPlayerIndex();
+        goToNextTurn();
     }
 
     public void handleCardsCanBePlayed(Player player, List<Card> cardsWhichCanBePlayed) {
@@ -230,6 +252,17 @@ public class UnoGame {
         }
     }
 
+    public void handleLoadingExistingGame() {
+        try {
+            loadExistingGameData();
+        }
+        catch(Exception e) {
+            display.couldNotReadFile();
+            gameDeck.shuffleDeck();
+            gameDeck.dealCardsToPlayers(players, 7);
+        }
+    }
+
     /** User chooses a number of human and cpu players.
      *
      * @return int[] [number of human players, number of computer players]
@@ -249,5 +282,93 @@ public class UnoGame {
         return new int[] {humanPlayers, cpuPlayers};
     }
 
+    /** Load in an existing game from csv file.
+     *  File has the format:
+     *      cards in deck
+     *      currentPlayerIndex
+     *      Player1 (name, card1, ..., cardN)
+     *      ...
+     *      PlayerM (name, card1, ..., cardN)
+     *
+     * @throws DataFormatException thrown when the format of the csv file doesn't match expected
+     */
+    public void loadExistingGameData() throws DataFormatException, IOException {
+        final String fileName = "existingGameData.csv";
+        List<String[]> fileData;
+        fileData = readDelimitedFile.getFileData(fileName);
 
+
+        // Handle file not matching expected format
+        if(fileData == null || fileData.size() != players.size() + 2) {
+            throw new DataFormatException("File does not contain expected data");
+        }
+
+        String[] deckData = fileData.get(0);
+
+        // Parse data for each player from file
+        List<Player> playersFromFile = new ArrayList<>();
+        for(int i=2; i<fileData.size(); i++) {
+            String[] line = fileData.get(i);
+            playersFromFile.add(getPlayerFromFileLine(line, i-2));
+        }
+
+        players = playersFromFile;
+    }
+
+    public Player getPlayerFromFileLine(String[] data, int playerIndex) throws DataFormatException {
+        String name = data[0];
+        List<Card> hand = getCardsFromStringArray(Arrays.copyOfRange(data, 1, data.length));
+        Player player = players.get(playerIndex) instanceof HumanPlayer ?
+                new HumanPlayer(name) : new ComputerPlayer(name);
+
+        player.setHand(hand);
+        return player;
+    }
+
+    public Card getCardFromString(String cardString) throws DataFormatException {
+        Colour cardColour = null;
+
+        // Find the colour of the card
+        for(Colour possibleColour : EnumSet.allOf(Colour.class)) {
+            if(cardString.contains(possibleColour.name())) {
+                cardColour = possibleColour;
+            }
+        }
+        if(cardColour == null) {
+            throw new DataFormatException("Invalid colour");
+        }
+
+        // Check if card is any of the special cards
+        for(SpecialCardType specialCardType : EnumSet.allOf(SpecialCardType.class)) {
+            if(cardString.contains(specialCardType.name())) {
+                return new SpecialCard(specialCardType, cardColour);
+            }
+        }
+
+        // Card is not special card, so must be a NumberCard
+        int cardValue = Integer.parseInt(cardString.split(cardColour.name() + " ")[1]);
+        return new NumberCard(cardColour, cardValue);
+    }
+
+    public List<Card> getCardsFromStringArray(String[] cardStringArray) throws DataFormatException {
+        List<Card> cards = new ArrayList<>();
+
+        for(String cardString : cardStringArray) {
+            cards.add(getCardFromString(cardString));
+        }
+
+        return cards;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void goToNextTurn() {
+        currentPlayerIndex = getNextPlayerIndex();
+    }
 }

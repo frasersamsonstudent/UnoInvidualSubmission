@@ -8,6 +8,7 @@ import java.util.List;
 public interface Player {
     List<Card> getHand();
     String getName();
+    void setHand(List<Card> hand);
 
     Card chooseCardToPlay(List<Card> cardsWhichCanBePlayedInHand, Input input);
     void removeCardFromHand(Card cardToRemove);

@@ -92,5 +92,8 @@ public class Deck {
         return cards;
     }
 
-
+    @Override
+    public String toString() {
+        return cards.toString();
+    }
 }
