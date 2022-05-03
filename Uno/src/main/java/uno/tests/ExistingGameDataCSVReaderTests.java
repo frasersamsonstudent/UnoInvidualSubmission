@@ -58,7 +58,7 @@ public class ExistingGameDataCSVReaderTests {
     public void getPlayerFromFileLine() throws DataFormatException {
         ExistingGameDataCSVReader existingGameDataCSVReader = new ExistingGameDataCSVReader();
 
-        List<Player> playersListForTest = Arrays.asList(new ComputerPlayer(""));
+        List<Player> playersListForTest = List.of(new ComputerPlayer(""));
         Player returnedPlayer = existingGameDataCSVReader.getPlayerFromFileLine(
                 new String[]{"playername", "red 5", "yellow wildcard"}, playersListForTest, 0
         );

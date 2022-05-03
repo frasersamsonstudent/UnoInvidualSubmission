@@ -32,7 +32,7 @@ public class DisplayOutput implements  Display {
     }
 
     public void noCardsCanBePlayed() {
-        System.out.println("No cards can be played");
+        output.displayString("No cards can be played");
     }
 
     public void drewCard(Player player, Card drawnCard, boolean shouldOutputWhichCardDrawn) {

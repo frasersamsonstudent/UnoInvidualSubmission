@@ -40,4 +40,8 @@ public class TestOutput implements Output {
     public String getMostRecentOutput() {
         return outputValues.get(outputValues.size()-1);
     }
+
+    public String getOutputAtIndex(int index) {
+        return outputValues.get(index);
+    }
 }

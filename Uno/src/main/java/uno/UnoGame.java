@@ -345,6 +345,7 @@ public class UnoGame {
 
     public void setOutput(Output output) {
         this.output = output;
+        this.display = new DisplayOutput(output);
     }
 
     public void setExistingGameReader(ExistingGameReader existingGameReader) {
