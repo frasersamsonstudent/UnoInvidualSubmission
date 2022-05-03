@@ -1,9 +1,10 @@
-package blackjack;
+package uno;
 
-import blackjack.Cards.*;
-import blackjack.input_output.*;
+import uno.Cards.*;
+import uno.file_reading.ExistingGameDataCSVReader;
+import uno.file_reading.ExistingGameReader;
+import uno.input_output.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -16,9 +17,8 @@ public class UnoGame {
     Output output;
     Input userInput;
     Display display;
-    ReadDelimitedFile readDelimitedFile = new ReadDelimitedFile();
+    ExistingGameReader existingGameReader;
     int currentPlayerIndex;
-
 
     public static void main(String[] args) {
         UnoGame game = new UnoGame();
@@ -29,17 +29,18 @@ public class UnoGame {
         output = new ConsoleOutput();
         userInput = new ConsoleInput();
         display = new DisplayOutput(output);
+        existingGameReader = new ExistingGameDataCSVReader();
 
         int[] numPlayers = userChooseNumberPlayers();
         initialisePlayers(numPlayers[0], numPlayers[1]);
     }
 
-    public UnoGame(List<Player> players, Output output, Input input, Display display, ReadDelimitedFile readDelimitedFile) {
+    public UnoGame(List<Player> players, Output output, Input input, Display display, ExistingGameReader existingGameReader) {
         this.players = players;
         this.output = output;
         this.userInput = input;
         this.display = display;
-        this.readDelimitedFile = readDelimitedFile;
+        this.existingGameReader = existingGameReader;
     }
 
     public void initialisePlayers(int humanPlayerCount, int cpuPlayerCount) {
@@ -254,7 +255,7 @@ public class UnoGame {
 
     public void handleLoadingExistingGame() {
         try {
-            loadExistingGameData();
+            existingGameReader.loadExistingGameData(this);
         }
         catch(Exception e) {
             display.couldNotReadFile();
@@ -282,50 +283,8 @@ public class UnoGame {
         return new int[] {humanPlayers, cpuPlayers};
     }
 
-    /** Load in an existing game from csv file.
-     *  File has the format:
-     *      cards in deck
-     *      currentPlayerIndex
-     *      Player1 (name, card1, ..., cardN)
-     *      ...
-     *      PlayerM (name, card1, ..., cardN)
-     *
-     * @throws DataFormatException thrown when the format of the csv file doesn't match expected
-     */
-    public void loadExistingGameData() throws DataFormatException, IOException {
-        final String fileName = "existingGameData.csv";
-        List<String[]> fileData;
-        fileData = readDelimitedFile.getFileData(fileName);
 
-
-        // Handle file not matching expected format
-        if(fileData == null || fileData.size() != players.size() + 2) {
-            throw new DataFormatException("File does not contain expected data");
-        }
-
-        String[] deckData = fileData.get(0);
-
-        // Parse data for each player from file
-        List<Player> playersFromFile = new ArrayList<>();
-        for(int i=2; i<fileData.size(); i++) {
-            String[] line = fileData.get(i);
-            playersFromFile.add(getPlayerFromFileLine(line, i-2));
-        }
-
-        players = playersFromFile;
-    }
-
-    public Player getPlayerFromFileLine(String[] data, int playerIndex) throws DataFormatException {
-        String name = data[0];
-        List<Card> hand = getCardsFromStringArray(Arrays.copyOfRange(data, 1, data.length));
-        Player player = players.get(playerIndex) instanceof HumanPlayer ?
-                new HumanPlayer(name) : new ComputerPlayer(name);
-
-        player.setHand(hand);
-        return player;
-    }
-
-    public Card getCardFromString(String cardString) throws DataFormatException {
+    public static Card getCardFromString(String cardString) throws DataFormatException {
         Colour cardColour = null;
 
         // Find the colour of the card
@@ -350,7 +309,7 @@ public class UnoGame {
         return new NumberCard(cardColour, cardValue);
     }
 
-    public List<Card> getCardsFromStringArray(String[] cardStringArray) throws DataFormatException {
+    public static List<Card> getCardsFromStringArray(String[] cardStringArray) throws DataFormatException {
         List<Card> cards = new ArrayList<>();
 
         for(String cardString : cardStringArray) {
@@ -370,5 +329,25 @@ public class UnoGame {
 
     public void goToNextTurn() {
         currentPlayerIndex = getNextPlayerIndex();
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setGameDeck(Deck deck) {
+        this.gameDeck = deck;
+    }
+
+    public void setUserInput(Input input) {
+        userInput = input;
+    }
+
+    public void setOutput(Output output) {
+        this.output = output;
+    }
+
+    public void setExistingGameReader(ExistingGameReader existingGameReader) {
+        this.existingGameReader = existingGameReader;
     }
 }

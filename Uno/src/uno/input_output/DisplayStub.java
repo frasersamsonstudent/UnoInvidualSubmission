@@ -1,7 +1,7 @@
-package blackjack.input_output;
+package uno.input_output;
 
-import blackjack.Cards.Card;
-import blackjack.Player;
+import uno.Cards.Card;
+import uno.Player;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
-package blackjack.tests;
+package uno.tests;
 
-import blackjack.*;
-import blackjack.Cards.*;
-import blackjack.input_output.ConsoleInput;
-import blackjack.input_output.ConsoleOutput;
-import blackjack.input_output.DisplayStub;
+import uno.*;
+import uno.Cards.*;
+import uno.file_reading.ExistingGameDataCSVReader;
+import uno.input_output.*;
+import uno.file_reading.FakeExistingGameReader;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -13,11 +13,17 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static uno.UnoGame.getCardsFromStringArray;
 
 public class UnoGameTests {
-    private UnoGame getGenericGameInstance() {
+    /** Returns an instance of the game which can be used for all the tests.
+     *  DisplayStub is passed as argument, so none of the messages will actually be displayed.
+     *
+     * @return instance of game with generic arguments
+     */
+    public static UnoGame getGenericGameInstance() {
         return new UnoGame(new ArrayList<>(), new ConsoleOutput(), new ConsoleInput(), new DisplayStub(),
-                new ReadDelimitedFile());
+                new ExistingGameDataCSVReader());
     }
 
     @Test
@@ -56,11 +62,35 @@ public class UnoGameTests {
                 new SpecialCard(SpecialCardType.plus2, Colour.blue));
 
         String[] cardsAsStringArray = new String[] {"red 4", "blue plus2"};
-        List<Card> functionOutput = game.getCardsFromStringArray(cardsAsStringArray);
+        List<Card> functionOutput = getCardsFromStringArray(cardsAsStringArray);
 
         assertEquals(expectedCards.size(), functionOutput.size());
         for(int i=0; i<expectedCards.size(); i++) {
             assertEquals(expectedCards.get(i), functionOutput.get(i));
         }
     }
+
+    @Test
+    public void playFullGame() {
+        UnoGame game = getGenericGameInstance();
+
+        // Set input to testInput
+        TestInput testInput = new TestInput();
+        game.setUserInput(testInput);
+
+        // Set existing to a fake existing game reader
+        game.setExistingGameReader(new FakeExistingGameReader());
+
+        // Set input for choosing to load existing game
+        testInput.addIntValue(2);
+
+        // Set input for choosing card to play
+        testInput.addIntValue(1);
+
+        game.playGame(false);
+
+        // Check first player has won game
+        assertEquals(game.getPlayers().get(0), game.whichPlayerHasWon());
+    }
+
 }

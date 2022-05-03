@@ -1,4 +1,4 @@
-package blackjack.input_output;
+package uno.input_output;
 
 public interface Output {
     void displayString(String outputString);

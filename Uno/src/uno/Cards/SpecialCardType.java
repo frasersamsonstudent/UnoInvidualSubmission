@@ -1,4 +1,4 @@
-package blackjack.Cards;
+package uno.Cards;
 
 public enum SpecialCardType {
     plus2,

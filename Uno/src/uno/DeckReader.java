@@ -1,4 +1,4 @@
-package blackjack;
+package uno;
 
 public class DeckReader {
     ReadDelimitedFile readDelimitedFile;

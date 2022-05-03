@@ -1,12 +1,9 @@
-package blackjack.input_output;
+package uno.input_output;
 
-import blackjack.Cards.Card;
-import blackjack.Cards.Colour;
-import blackjack.Player;
+import uno.Cards.Card;
+import uno.Player;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public interface Display {
     void setOutput(Output output);

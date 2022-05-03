@@ -1,16 +1,19 @@
-package blackjack;
+package uno;
 
-import blackjack.Cards.*;
+import uno.Cards.*;
 
 import java.util.*;
 
 public class Deck {
     List<Card> cards;
-    DeckReader deckReader;
 
     public Deck() {
         cards = new ArrayList<>();
         generateNewDeck();
+    }
+
+    public Deck(List<Card> deckCards) {
+        cards = deckCards;
     }
 
     public void generateNewDeck() {
@@ -65,7 +68,7 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
-    private List<Card> getAllNumberCardsForColour(Colour colour, int countOfEachCard) {
+    public List<Card> getAllNumberCardsForColour(Colour colour, int countOfEachCard) {
         List<Card> cards = new ArrayList<>();
 
         // Generate cards for each value from 1 to 9
@@ -78,7 +81,7 @@ public class Deck {
         return cards;
     }
 
-    private List<Card> getAllSpecialCardsForColour(Colour colour, int countOfEachCard) {
+    public List<Card> getAllSpecialCardsForColour(Colour colour, int countOfEachCard) {
         List<Card> cards = new ArrayList<>();
 
         EnumSet<SpecialCardType> specialCardTypes = EnumSet.allOf(SpecialCardType.class);
@@ -95,5 +98,9 @@ public class Deck {
     @Override
     public String toString() {
         return cards.toString();
+    }
+
+    public int getNumberOfCards() {
+        return cards.size();
     }
 }
