@@ -22,6 +22,9 @@ public class HumanPlayerTest {
             return new HumanPlayer("name");
     }
 
+    /** Adapter design used for input.
+     *
+     */
     @Test
     public void chooseCardToPlay() {
         Player player = getHumanPlayer();

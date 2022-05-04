@@ -73,6 +73,10 @@ public class UnoGameTests {
         }
     }
 
+    /** Adapter design used for input.
+     * Fake game reader used when reading in the game.
+     *
+     */
     @Test
     public void playFullGame() {
         UnoGame game = getGenericGameInstance();
@@ -112,7 +116,7 @@ public class UnoGameTests {
     }
 
     /** Uses mock to throw exception when reading file.
-     *  Adapter design is used to check there is suitable error message in the console.
+     * Adapter design is used to check there is suitable error message in the console.
      */
     @Test
     public void testHandlingMissingFile() throws DataFormatException, IOException {

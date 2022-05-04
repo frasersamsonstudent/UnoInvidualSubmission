@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DeckTest {
     @Test
-    public void dealCardsToPlays() {
+    public void dealCardsToPlayers() {
         List<Player> players = new ArrayList<>(Arrays.asList(
                 new HumanPlayer("player1"),
                 new HumanPlayer("player2")
