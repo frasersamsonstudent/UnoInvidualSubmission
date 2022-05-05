@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class ReadDelimitedFile {
 
     private String fileDelimitor = ",";
-    private String filePathPrefix = "src/resources/";
+    private String filePathPrefix = "src/main/resources/";
 
     public void setFileDelimitor(String fileDelimitor){
         this.fileDelimitor = fileDelimitor;
